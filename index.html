@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="test">IT教育</div>
+    <ul id="fragment-test">
+        <li>test1</li>
+        <li>test2</li>
+        <li>test3</li>
+    </ul>
+    <script>
+        /*
+            函数节点：最大的节点为document，文档节点（也称为html文件），元素节点>属性节点？文本节点
+            通过节点的属性来判断节点类型node.nodeType
+        */
+       const elementNode = document.getElementById('test');
+    //    const attrNode = elementNode.getAttribute('id');
+    const attrNode = elementNode.getAttributeNode('id')
+       const textNode = elementNode.firstChild;
+       console.log(elementNode,elementNode.nodeType,attrNode,attrNode.nodeType,textNode,textNode.nodeType)
+       /*
+        第三点：定义属性，响应式
+        第一个参数表示的是定义的对象，第二个参数定义的是属性，但三个参数定一个其配置包含数据描述符，访问描述符
+        Object.defineProperty 定义对象的参数整体是属性描述符，但是属性描述符包含
+        数据描述符以及访问描述符
+        其中1.数据描述符
+            configurable 是否可以重新被定义
+            enumerable 是否可以被枚举 默认值为false通过for in进行遍历 默认为false不可枚举
+            value：初始值
+            writable ：属性是否可以被修改
+           2.访问描述符
+            get ：根据其相关的属性，动态计算得到当前的值，（回掉函数）， 相关属性发生变化，其值也发生变化
+            set：监视当前属性值的变化，更新其相关的属性
+
+            注意点：访问描述符和数据描述符不可以同时出现
+       */
+      const obj = {
+          firstName:'a',
+          lastName:'b'
+      }
+      Object.defineProperty(obj,'fullName',{
+          get(){
+              return this.firstName +'-'+this.lastName
+          },
+          set(value){
+            let newValue = value.split('-')
+            this.firstName = newValue[0]
+            this.firstName = newValue[1]
+          }
+      })
+      Object.defineProperty(obj,'fullName2',{
+          configurable:false,
+          enumerable:true,
+            value:'G-H',
+            writable:false,
+            // 不可以同时出现 数据描述符和访问描述符
+        //   get(){
+        //       return this.firstName +'-'+this.lastName
+        //   },
+        //   set(value){
+        //     let newValue = value.split('-')
+        //     this.firstName = newValue[0]
+        //     this.firstName = newValue[1]
+        //   }
+      })
+    //   Object.defineProperty(obj,'fullName2',{
+    //       configurable:true,
+    //       enumerable:true,
+    //         value:'G-H',
+    //         writable:false,
+    //         // 不可以同时出现 数据描述符和访问描述符
+    
+    //   })
+    /*
+        第四点：Object.keys得到的对象自身可以枚举的属性组成的数组
+    */
+   const names = Object.keys(obj);
+   console.log(names)
+   /*
+        第五点：Object.hasOwnProperty:判断当前prop属性是否是obj自身的属性,原型上面的属性都为false
+   */
+  console.log(obj.hasOwnProperty('fullName'),obj.hasOwnProperty('toString'))
+  /*    
+    第六点：文档碎片，注意一点文档碎片也属于节点的一种
+    DocumentFragment:文档碎片（高效批量更新多个节点）
+    document:对应显示的页面，包含n哥element，一旦更新document内部的某个元素，整个页面都会更新
+    DocumentFragment:内存中保存着n个element的容器对象，（不与界面关联），如果恒心fragment中的某个元素，界面不会变，从多次更新变成了一次批量更新
+  */
+        //步骤：第一步：创建文档碎片
+    const fragment = document.createDocumentFragment();
+    const ul = document.getElementById('fragment-test');
+    // 第二步：取出ul中的所有子节点，包含换行符（换行符也属于文本节点），取出来保存在fragment中
+    /*
+        fragment.children是获取节点的所有子标签（元素节点不包含换行啥的）
+        fragment.childNode是获取所有子节点 是一个伪元素
+    */
+    let child;
+    while(child = ul.firstChild){
+        // 这里做了两个事情第一步将第一个节点取出 第二部赋值给child
+        // 注意一点一个节点只能有一个父元素
+        fragment.appendChild(child)
+    }
+    // console.log(ul,fragment)
+    // 第三步：更新fragment中的所有li中的文本
+    Array.prototype.slice.call(fragment.childNodes).forEach(node=>{
+        if(node.nodeType === 1){
+            node.textContent = '尚硅谷'
+        }
+    })
+    // 第四部：将fragment插入到ul
+    ul.appendChild(fragment)
+    /*
+        第七个知识点：数据代理
+    */
+    </script>
+</body>
+</html>
